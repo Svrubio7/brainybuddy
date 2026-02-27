@@ -13,8 +13,10 @@ class User(SQLModel, table=True):
     avatar_url: str = ""
     timezone: str = "UTC"
 
-    # Google OAuth
-    google_id: str | None = Field(default=None, unique=True, index=True)
+    # Supabase Auth
+    supabase_id: str = Field(unique=True, index=True)
+
+    # Google Calendar OAuth (separate from Supabase Auth)
     google_access_token: str | None = None
     google_refresh_token: str | None = None
     google_token_expiry: Optional[datetime] = None

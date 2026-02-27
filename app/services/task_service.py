@@ -40,15 +40,25 @@ async def list_tasks(
     user_id: int,
     status: str | None = None,
     course_id: int | None = None,
-) -> list[Task]:
-    query = select(Task).where(Task.user_id == user_id)
+    offset: int = 0,
+    limit: int = 50,
+) -> tuple[list[Task], int]:
+    from sqlalchemy import func
+
+    base = select(Task).where(Task.user_id == user_id)
     if status:
-        query = query.where(Task.status == status)
+        base = base.where(Task.status == status)
     if course_id:
-        query = query.where(Task.course_id == course_id)
-    query = query.order_by(Task.due_date.asc())
+        base = base.where(Task.course_id == course_id)
+
+    # Count total
+    count_q = select(func.count()).select_from(base.subquery())
+    total = (await session.execute(count_q)).scalar_one()
+
+    # Fetch page
+    query = base.order_by(Task.due_date.asc()).offset(offset).limit(limit)
     result = await session.execute(query)
-    return list(result.scalars().all())
+    return list(result.scalars().all()), total
 
 
 async def get_task(session: AsyncSession, user_id: int, task_id: int) -> Task | None:
@@ -126,3 +136,16 @@ async def add_time_to_task(
 async def get_task_tag_ids(session: AsyncSession, task_id: int) -> list[int]:
     result = await session.execute(select(TaskTag).where(TaskTag.task_id == task_id))
     return [tt.tag_id for tt in result.scalars().all()]
+
+
+async def get_task_tag_ids_batch(
+    session: AsyncSession, task_ids: list[int]
+) -> dict[int, list[int]]:
+    """Fetch tag IDs for multiple tasks in a single query."""
+    if not task_ids:
+        return {}
+    result = await session.execute(select(TaskTag).where(TaskTag.task_id.in_(task_ids)))
+    mapping: dict[int, list[int]] = {tid: [] for tid in task_ids}
+    for tt in result.scalars().all():
+        mapping[tt.task_id].append(tt.tag_id)
+    return mapping

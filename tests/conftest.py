@@ -44,7 +44,7 @@ async def test_user(db_session: AsyncSession) -> User:
     user = User(
         email="test@example.com",
         display_name="Test User",
-        google_id="test-google-id",
+        supabase_id="test-supabase-id-00000000",
         timezone="UTC",
     )
     db_session.add(user)

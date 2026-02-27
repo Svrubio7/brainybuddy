@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.core.deps import CurrentUser, DbSession
+from app.schemas.pagination import PaginatedTaskResponse
 from app.schemas.task import AddTimeRequest, TaskCreate, TaskResponse, TaskUpdate
 from app.services import task_service
 
@@ -37,19 +38,26 @@ async def create(data: TaskCreate, user: CurrentUser, session: DbSession):
     return _to_response(task, data.tag_ids)
 
 
-@router.get("", response_model=list[TaskResponse])
+@router.get("", response_model=PaginatedTaskResponse)
 async def list_tasks(
     user: CurrentUser,
     session: DbSession,
     status: str | None = Query(None),
     course_id: int | None = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
 ):
-    tasks = await task_service.list_tasks(session, user.id, status=status, course_id=course_id)
-    result = []
-    for t in tasks:
-        tag_ids = await task_service.get_task_tag_ids(session, t.id)
-        result.append(_to_response(t, tag_ids))
-    return result
+    tasks, total = await task_service.list_tasks(
+        session, user.id, status=status, course_id=course_id, offset=offset, limit=limit
+    )
+    task_ids = [t.id for t in tasks]
+    tag_map = await task_service.get_task_tag_ids_batch(session, task_ids)
+    return PaginatedTaskResponse(
+        items=[_to_response(t, tag_map.get(t.id, [])) for t in tasks],
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.get("/{task_id}", response_model=TaskResponse)

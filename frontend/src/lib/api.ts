@@ -10,101 +10,73 @@ import type {
   Task,
   TaskCreate,
   TaskUpdate,
-  TokenResponse,
   User,
 } from "./types";
+import { supabase } from "./supabase";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8123";
 
 class ApiClient {
-  private accessToken: string | null = null;
-  private refreshToken: string | null = null;
-
-  constructor() {
-    if (typeof window !== "undefined") {
-      this.accessToken = localStorage.getItem("access_token");
-      this.refreshToken = localStorage.getItem("refresh_token");
-    }
-  }
-
-  setTokens(access: string, refresh: string) {
-    this.accessToken = access;
-    this.refreshToken = refresh;
-    if (typeof window !== "undefined") {
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
-    }
-  }
-
-  clearTokens() {
-    this.accessToken = null;
-    this.refreshToken = null;
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-    }
+  private async getAccessToken(): Promise<string | null> {
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ?? null;
   }
 
   private async fetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       ...(options.headers as Record<string, string>),
     };
 
-    if (this.accessToken) {
-      headers["Authorization"] = `Bearer ${this.accessToken}`;
+    const token = await this.getAccessToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
-    let response = await fetch(`${API_URL}${path}`, { ...options, headers });
-
-    // Try refresh if 401
-    if (response.status === 401 && this.refreshToken) {
-      const refreshed = await this.doRefresh();
-      if (refreshed) {
-        headers["Authorization"] = `Bearer ${this.accessToken}`;
-        response = await fetch(`${API_URL}${path}`, { ...options, headers });
-      }
-    }
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || `API error: ${response.status}`);
-    }
-
-    if (response.status === 204) return undefined as T;
-    return response.json();
-  }
-
-  private async doRefresh(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_URL}/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: this.refreshToken }),
+      const response = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers,
+        signal: controller.signal,
       });
-      if (!response.ok) return false;
-      const data: TokenResponse = await response.json();
-      this.setTokens(data.access_token, data.refresh_token);
-      return true;
-    } catch {
-      this.clearTokens();
-      return false;
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.detail || `API error: ${response.status}`);
+      }
+
+      if (response.status === 204) return undefined as T;
+      return response.json();
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
   // Auth
-  getGoogleAuthUrl = () => this.fetch<{ auth_url: string }>("/auth/google");
+  provision = async () => {
+    const token = await this.getAccessToken();
+    if (!token) throw new Error("No session");
+    return this.fetch<User>("/auth/provision", {
+      method: "POST",
+      body: JSON.stringify({ access_token: token }),
+    });
+  };
   getMe = () => this.fetch<User>("/auth/me");
 
   // Tasks
   createTask = (data: TaskCreate) =>
     this.fetch<Task>("/api/tasks", { method: "POST", body: JSON.stringify(data) });
-  listTasks = (params?: { status?: string; course_id?: number }) => {
+  listTasks = async (params?: { status?: string; course_id?: number }) => {
     const query = new URLSearchParams();
     if (params?.status) query.set("status", params.status);
     if (params?.course_id) query.set("course_id", String(params.course_id));
+    query.set("limit", "200");
     const qs = query.toString();
-    return this.fetch<Task[]>(`/api/tasks${qs ? `?${qs}` : ""}`);
+    const res = await this.fetch<{ items: Task[]; total: number }>(`/api/tasks?${qs}`);
+    return res.items;
   };
   getTask = (id: number) => this.fetch<Task>(`/api/tasks/${id}`);
   updateTask = (id: number, data: TaskUpdate) =>

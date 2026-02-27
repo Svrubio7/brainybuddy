@@ -1,14 +1,27 @@
-FROM python:3.12-slim
+FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
-COPY pyproject.toml .
-RUN uv sync --no-dev
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --no-dev --frozen
 
-COPY . .
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN adduser --disabled-password --gecos "" appuser
+
+COPY --from=builder /app/.venv /app/.venv
+COPY app/ ./app/
+COPY alembic/ ./alembic/
+COPY alembic.ini ./
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+USER appuser
 
 EXPOSE 8123
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8123"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8123"]

@@ -122,7 +122,7 @@ export default function CalendarPage() {
                           key={block.id}
                           className="absolute left-0.5 right-0.5 rounded px-1 py-0.5 text-xs text-white cursor-pointer hover:opacity-80"
                           style={{
-                            backgroundColor: block.course_color || "#4F46E5",
+                            backgroundColor: block.course_color || "var(--accent)",
                             top: `${topOffset}px`,
                             height: `${height}px`,
                             minHeight: "20px",

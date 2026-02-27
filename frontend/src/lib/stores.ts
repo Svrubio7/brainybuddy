@@ -1,22 +1,37 @@
 import { create } from "zustand";
 import type { PlanDiff, User } from "./types";
+import { supabase } from "./supabase";
+import { api } from "./api";
 
 interface AuthStore {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   setUser: (user: User | null) => void;
-  logout: () => void;
+  initialize: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   isAuthenticated: false,
+  isLoading: true,
   setUser: (user) => set({ user, isAuthenticated: !!user }),
-  logout: () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
+  initialize: async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        const user = await api.getMe();
+        set({ user, isAuthenticated: true, isLoading: false });
+      } else {
+        set({ user: null, isAuthenticated: false, isLoading: false });
+      }
+    } catch {
+      set({ user: null, isAuthenticated: false, isLoading: false });
     }
+  },
+  logout: async () => {
+    await supabase.auth.signOut();
     set({ user: null, isAuthenticated: false });
   },
 }));

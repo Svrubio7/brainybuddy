@@ -11,7 +11,8 @@
       "WebSearch(*)",
       "Task(*)",
       "NotebookEdit(*)",
-      "WebFetch(domain:ai-sdk.dev)"
+      "WebFetch(domain:ai-sdk.dev)",
+      "mcp__figma__get_design_context"
     ]
   }
 }

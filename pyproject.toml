@@ -30,6 +30,8 @@ dependencies = [
     "opentelemetry-api>=1.29.0",
     "opentelemetry-sdk>=1.29.0",
     "opentelemetry-instrumentation-fastapi>=0.50b0",
+    "slowapi>=0.1.9",
+    "python-json-logger>=3.0.0",
 ]
 
 [dependency-groups]
@@ -56,13 +58,13 @@ testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 strict = true
 plugins = ["pydantic.mypy"]

@@ -1,42 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --border: #e2e8f0;
-  --ring: #4f46e5;
+  --background: #D7FDF0;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --primary: #B2FFD6;
+  --primary-foreground: #1a1a2e;
+  --secondary: #B4D6D3;
+  --secondary-foreground: #1a1a2e;
+  --muted: #B4D6D3;
+  --muted-foreground: #8b8d9e;
+  --accent: #AA78A6;
+  --accent-foreground: #ffffff;
+  --destructive: #e74c3c;
+  --border: #d0d2de;
+  --ring: #AA78A6;
   --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --kanban-column: rgba(180,214,211,0.25);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #6366f1;
-    --primary-foreground: #ffffff;
-    --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
-    --accent: #1e293b;
-    --accent-foreground: #f8fafc;
-    --destructive: #dc2626;
-    --border: #334155;
-    --ring: #6366f1;
-  }
+.dark {
+  --background: #0f1117;
+  --foreground: #e0e0e8;
+  --card: #1a1f2e;
+  --card-foreground: #e0e0e8;
+  --primary: #7cdeaa;
+  --primary-foreground: #0f1117;
+  --secondary: #1a1f2e;
+  --secondary-foreground: #e0e0e8;
+  --muted: #1a1f2e;
+  --muted-foreground: #8890a4;
+  --accent: #c49bbf;
+  --accent-foreground: #0f1117;
+  --destructive: #e74c3c;
+  --border: #2d3348;
+  --ring: #c49bbf;
+  --sidebar: #151821;
+  --kanban-column: rgba(26,31,46,0.6);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }

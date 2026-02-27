@@ -173,8 +173,3 @@ export interface SchedulingRules {
   weekend_max_hours: number;
 }
 
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-}

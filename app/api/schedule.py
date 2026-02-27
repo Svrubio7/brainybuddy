@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from app.core.deps import CurrentUser, DbSession
+from app.core.rate_limit import limiter
 from app.schemas.schedule import (
     GeneratePlanRequest,
     MoveBlockRequest,
@@ -20,7 +21,8 @@ _preview_cache: dict[int, list] = {}
 
 
 @router.post("/generate", response_model=PlanDiffResponse)
-async def generate_plan(data: GeneratePlanRequest, user: CurrentUser, session: DbSession):
+@limiter.limit("5/minute")
+async def generate_plan(request: Request, data: GeneratePlanRequest, user: CurrentUser, session: DbSession):
     new_blocks, diff = await schedule_service.generate_new_plan(
         session, user.id, reason=data.reason
     )

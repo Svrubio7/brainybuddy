@@ -1,9 +1,10 @@
 import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.core.deps import CurrentUser, DbSession
+from app.core.rate_limit import limiter
 from app.schemas.chat import ChatMessageResponse, ChatRequest, ChatSessionResponse, ToolCallInfo
 from app.services.llm import chat_service
 
@@ -11,7 +12,8 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
 @router.post("", response_model=ChatMessageResponse)
-async def send_message(data: ChatRequest, user: CurrentUser, session: DbSession):
+@limiter.limit("20/minute")
+async def send_message(request: Request, data: ChatRequest, user: CurrentUser, session: DbSession):
     response_text, tool_calls, session_id = await chat_service.chat(
         session, user.id, data.message, data.session_id
     )

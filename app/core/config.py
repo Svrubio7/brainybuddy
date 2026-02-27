@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     # App
     APP_NAME: str = "BrainyBuddy"
     ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://brainybuddy:brainybuddy@localhost:5432/brainybuddy"
@@ -18,16 +18,14 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # Security
-    SECRET_KEY: str = "change-me-to-a-random-secret-key"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-    ALGORITHM: str = "HS256"
+    # Supabase
+    SUPABASE_URL: str = ""
+    SUPABASE_PUBLISHABLE_KEY: str = ""
 
-    # Google OAuth
+    # Google OAuth (Calendar-only, separate from Supabase Auth)
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8123/auth/google/callback"
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8123/api/sync/google/callback"
 
     # Anthropic
     ANTHROPIC_API_KEY: str = ""
