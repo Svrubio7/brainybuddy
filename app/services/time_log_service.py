@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -18,7 +18,7 @@ async def start_focus_timer(
         task_id=task_id,
         study_block_id=study_block_id,
         log_type=LogType.TIMER,
-        start=datetime.now(UTC),
+        start=datetime.utcnow(),
     )
     session.add(log)
     await session.commit()
@@ -38,7 +38,7 @@ async def stop_focus_timer(
     if not log or log.end is not None:
         return None
 
-    log.end = datetime.now(UTC)
+    log.end = datetime.utcnow()
     log.duration_minutes = (log.end - log.start).total_seconds() / 60
     await session.commit()
     await session.refresh(log)

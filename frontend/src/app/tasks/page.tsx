@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import {
-  Plus,
-  Clock,
-  LayoutGrid,
-  List,
-  CheckCircle2,
-  Trash2,
-} from "lucide-react";
+  IconPlus,
+  IconClock,
+  IconGrid,
+  IconList,
+  IconCheckCircle,
+  IconTrash,
+} from "@/components/ui/icons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +64,7 @@ function KanbanCard({
                 className="rounded p-1 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[#68b266]"
                 title="Complete"
               >
-                <CheckCircle2 className="h-3.5 w-3.5" />
+                <IconCheckCircle className="h-3.5 w-3.5" />
               </button>
             )}
             <button
@@ -75,7 +75,7 @@ function KanbanCard({
               className="rounded p-1 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--destructive)]"
               title="Delete"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <IconTrash className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@ function KanbanCard({
           <div className="flex items-center gap-2">
             {task.estimated_hours && (
               <span className="flex items-center gap-0.5">
-                <Clock className="h-3 w-3" />
+                <IconClock className="h-3 w-3" />
                 {task.estimated_hours}h
               </span>
             )}
@@ -176,11 +176,11 @@ function ListRow({
         <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           {task.status === "active" && (
             <Button size="sm" variant="ghost" onClick={onComplete}>
-              <CheckCircle2 className="h-4 w-4 text-[#68b266]" />
+              <IconCheckCircle className="h-4 w-4 text-[#68b266]" />
             </Button>
           )}
           <Button size="sm" variant="ghost" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 text-[var(--destructive)]" />
+            <IconTrash className="h-4 w-4 text-[var(--destructive)]" />
           </Button>
         </div>
       </CardContent>
@@ -215,29 +215,29 @@ export default function TasksPage() {
               onClick={() => setView("kanban")}
               className={`rounded-md p-1.5 transition-colors ${
                 view === "kanban"
-                  ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                  ? "bg-[var(--primary)] text-white"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
               title="Kanban"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <IconGrid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setView("list")}
               className={`rounded-md p-1.5 transition-colors ${
                 view === "list"
-                  ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                  ? "bg-[var(--primary)] text-white"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
               title="List"
             >
-              <List className="h-4 w-4" />
+              <IconList className="h-4 w-4" />
             </button>
           </div>
 
           <Link href="/tasks/new">
             <Button size="sm">
-              <Plus className="h-4 w-4" />
+              <IconPlus className="h-4 w-4" />
               New Task
             </Button>
           </Link>

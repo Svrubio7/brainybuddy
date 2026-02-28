@@ -5,22 +5,23 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  CheckSquare,
-  Calendar,
-  BarChart3,
-  Brain,
-  Zap,
-  Shield,
-  Clock,
-  BookOpen,
-  ArrowRight,
-  Check,
-  Mail,
-} from "lucide-react";
+  IconCheckSquare,
+  IconCalendar,
+  IconBarChart,
+  IconBrain,
+  IconZap,
+  IconShield,
+  IconClock,
+  IconBook,
+  IconArrowRight,
+  IconCheck,
+  IconMail,
+} from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { useAuthStore } from "@/lib/stores";
 
 /* ── Auth Modal ────────────────────────────────────────────── */
@@ -70,7 +71,9 @@ function AuthModal({
           password,
         });
         if (error) throw error;
-        router.push("/auth/callback");
+        const user = await api.provision();
+        useAuthStore.getState().setUser(user);
+        router.push("/dashboard");
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -80,12 +83,15 @@ function AuthModal({
   };
 
   const handleGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+    if (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -174,7 +180,7 @@ function AuthModal({
             <p className="text-sm text-[#68b266]">{message}</p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
-            <Mail className="h-4 w-4" />
+            <IconMail className="h-4 w-4" />
             {loading
               ? "Please wait..."
               : mode === "login"
@@ -223,9 +229,9 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl bg-[rgba(180,214,211,0.12)] p-6 space-y-4">
+    <div className="rounded-2xl bg-[rgba(215,253,240,0.5)] p-6 space-y-4">
       <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--card)] shadow-sm">
-        <Icon className="h-7 w-7 text-[var(--accent)]" />
+        <Icon className="h-7 w-7 text-[var(--primary)]" />
       </div>
       <h3 className="text-xl font-semibold text-[var(--foreground)]">
         {title}
@@ -258,7 +264,7 @@ function PricingCard({
     <Card
       className={`flex flex-col overflow-hidden ${
         highlighted
-          ? "bg-[var(--accent)] text-white ring-2 ring-[var(--accent)] scale-[1.02]"
+          ? "bg-[var(--primary)] text-white ring-2 ring-[var(--primary)] scale-[1.02]"
           : ""
       }`}
     >
@@ -303,12 +309,12 @@ function PricingCard({
       </div>
       <div
         className={`flex-1 space-y-3 rounded-xl p-6 ${
-          highlighted ? "bg-white" : "bg-[rgba(180,214,211,0.1)]"
+          highlighted ? "bg-white" : "bg-[rgba(215,253,240,0.4)]"
         }`}
       >
         {features.map((f) => (
           <div key={f} className="flex items-start gap-2.5">
-            <Check className="h-5 w-5 shrink-0 text-[var(--accent)]" />
+            <IconCheck className="h-5 w-5 shrink-0 text-[var(--primary)]" />
             <span className="text-sm text-[var(--foreground)]">{f}</span>
           </div>
         ))}
@@ -329,31 +335,24 @@ function PricingCard({
 /* ── Main Landing Page ─────────────────────────────────────── */
 
 export default function Home() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [authModal, setAuthModal] = useState<"login" | "signup" | null>(null);
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, isLoading, router]);
 
   const features = [
     {
-      icon: Brain,
+      icon: IconBrain,
       title: "AI Study Planner",
       description:
         "Intelligent scheduling that adapts to your energy, deadlines, and difficulty. Never miss a study session again.",
     },
     {
-      icon: Calendar,
+      icon: IconCalendar,
       title: "Calendar Sync",
       description:
         "Two-way Google Calendar integration. Your study blocks appear alongside classes and events automatically.",
     },
     {
-      icon: BarChart3,
+      icon: IconBarChart,
       title: "Smart Analytics",
       description:
         "Track study hours, completion rates, and productivity trends. Know exactly where your time goes.",
@@ -375,8 +374,9 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/logo.png" alt="BrainyBuddy" width={32} height={32} />
-            <span className="text-xl font-semibold text-[var(--accent)]">
-              BrainyBuddy
+            <span className="text-xl font-semibold">
+              <span className="text-[var(--primary)]">Brainy</span>{" "}
+              <span className="text-[var(--foreground)]">Buddy</span>
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm">
@@ -391,15 +391,23 @@ export default function Home() {
             </a>
           </nav>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setAuthModal("login")}
-              className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-            >
-              Login
-            </button>
-            <Button size="sm" onClick={() => setAuthModal("signup")}>
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <Link href="/dashboard">
+                <Button size="sm">Go to Dashboard</Button>
+              </Link>
+            ) : (
+              <>
+                <button
+                  onClick={() => setAuthModal("login")}
+                  className="text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                >
+                  Login
+                </button>
+                <Button size="sm" onClick={() => setAuthModal("signup")}>
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -412,7 +420,7 @@ export default function Home() {
               We&apos;re here to
               <br />
               Boost your{" "}
-              <span className="text-[var(--accent)]">Study Game</span>
+              <span className="text-[var(--primary)]">Study Game</span>
             </h1>
             <p className="max-w-md text-lg leading-relaxed text-[var(--muted-foreground)]">
               Let&apos;s make your study life more organized using BrainyBuddy&apos;s
@@ -432,7 +440,7 @@ export default function Home() {
                 className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)] hover:text-[var(--accent)] transition-colors"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)]">
-                  <ArrowRight className="h-4 w-4" />
+                  <IconArrowRight className="h-4 w-4" />
                 </div>
                 Learn more
               </Link>
@@ -441,13 +449,13 @@ export default function Home() {
 
           {/* Hero visual */}
           <div className="relative hidden lg:block">
-            <div className="relative h-[420px] w-full overflow-hidden rounded-2xl bg-[var(--accent)]">
+            <div className="relative h-[420px] w-full overflow-hidden rounded-2xl bg-[var(--primary)]">
               {/* Decorative shapes */}
               <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-[rgba(255,255,255,0.1)]" />
               <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-[rgba(255,255,255,0.08)]" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="space-y-4 text-center text-white">
-                  <CheckSquare className="mx-auto h-16 w-16 opacity-80" />
+                  <IconCheckSquare className="mx-auto h-16 w-16 opacity-80" />
                   <p className="text-2xl font-bold">Plan Smarter</p>
                   <p className="text-sm opacity-70">
                     AI schedules your study sessions around your life
@@ -470,7 +478,7 @@ export default function Home() {
                 4.5h
               </p>
               <div className="mt-1 flex items-center gap-1 text-xs text-[#68b266]">
-                <Zap className="h-3 w-3" />
+                <IconZap className="h-3 w-3" />
                 +12% this week
               </div>
             </div>
@@ -496,7 +504,7 @@ export default function Home() {
       </section>
 
       {/* ── Benefits ────────────────────────────────────── */}
-      <section id="benefits" className="bg-[rgba(180,214,211,0.1)] py-20">
+      <section id="benefits" className="bg-[#D7FDF0] py-20">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
@@ -506,8 +514,8 @@ export default function Home() {
               <div className="space-y-4">
                 {benefits.map((b) => (
                   <div key={b} className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]">
-                      <Check className="h-3.5 w-3.5 text-white" />
+                    <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]">
+                      <IconCheck className="h-3.5 w-3.5 text-white" />
                     </div>
                     <span className="text-[var(--foreground)]">{b}</span>
                   </div>
@@ -517,7 +525,7 @@ export default function Home() {
             <div className="flex items-center justify-center">
               <div className="grid grid-cols-2 gap-4">
                 <Card className="space-y-2 text-center">
-                  <Clock className="mx-auto h-8 w-8 text-[var(--accent)]" />
+                  <IconClock className="mx-auto h-8 w-8 text-[var(--primary)]" />
                   <p className="text-2xl font-bold text-[var(--foreground)]">
                     15min
                   </p>
@@ -526,7 +534,7 @@ export default function Home() {
                   </p>
                 </Card>
                 <Card className="space-y-2 text-center">
-                  <Shield className="mx-auto h-8 w-8 text-[#5688e0]" />
+                  <IconShield className="mx-auto h-8 w-8 text-[var(--primary)]" />
                   <p className="text-2xl font-bold text-[var(--foreground)]">
                     24/7
                   </p>
@@ -535,7 +543,7 @@ export default function Home() {
                   </p>
                 </Card>
                 <Card className="space-y-2 text-center">
-                  <BookOpen className="mx-auto h-8 w-8 text-[#68b266]" />
+                  <IconBook className="mx-auto h-8 w-8 text-[#68b266]" />
                   <p className="text-2xl font-bold text-[var(--foreground)]">
                     2-way
                   </p>
@@ -544,7 +552,7 @@ export default function Home() {
                   </p>
                 </Card>
                 <Card className="space-y-2 text-center">
-                  <Brain className="mx-auto h-8 w-8 text-[#d58d49]" />
+                  <IconBrain className="mx-auto h-8 w-8 text-[#d58d49]" />
                   <p className="text-2xl font-bold text-[var(--foreground)]">
                     AI
                   </p>
@@ -629,7 +637,7 @@ export default function Home() {
               onClick={() => setAuthModal("signup")}
             >
               Get Started Free
-              <ArrowRight className="h-4 w-4" />
+              <IconArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -647,8 +655,9 @@ export default function Home() {
                   width={28}
                   height={28}
                 />
-                <span className="text-lg font-semibold text-[var(--accent)]">
-                  BrainyBuddy
+                <span className="text-lg font-semibold">
+                  <span className="text-[var(--primary)]">Brainy</span>{" "}
+                  <span className="text-white">Buddy</span>
                 </span>
               </Link>
               <p className="mt-3 text-sm text-[#8890a4]">

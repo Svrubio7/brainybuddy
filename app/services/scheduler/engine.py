@@ -10,7 +10,7 @@ Algorithm: Earliest-deadline-first allocation with constraint satisfaction.
 - Minimum-viable-progress blocks when overloaded
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 
 from app.models.task import Priority, Task
 from app.schemas.availability import AvailabilityGridSchema, SchedulingRulesSchema
@@ -99,7 +99,7 @@ def generate_plan(
         return []
 
     pinned = pinned_blocks or []
-    now = plan_start or datetime.now(UTC)
+    now = plan_start or datetime.utcnow()
     # Round up to next slot boundary
     minute_remainder = now.minute % SLOT_MINUTES
     if minute_remainder != 0:

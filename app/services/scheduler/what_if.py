@@ -14,7 +14,7 @@ Supported scenario types:
 from __future__ import annotations
 
 import enum
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -201,7 +201,7 @@ def _build_hypothetical_task(
         user_id=user_id,
         title=scenario.task_title or "Hypothetical Task",
         estimated_hours=scenario.task_estimated_hours or 2.0,
-        due_date=scenario.task_due_date or datetime.now(UTC) + timedelta(days=14),
+        due_date=scenario.task_due_date or datetime.utcnow() + timedelta(days=14),
         focus_load=scenario.task_focus_load or "medium",
         difficulty=scenario.task_difficulty or 3,
         course_id=scenario.task_course_id,

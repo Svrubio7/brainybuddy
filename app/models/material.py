@@ -1,5 +1,5 @@
 import enum
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Enum
 from sqlmodel import Field, SQLModel
@@ -29,4 +29,4 @@ class Material(SQLModel, table=True):
     )
     extracted_text: str = ""
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())

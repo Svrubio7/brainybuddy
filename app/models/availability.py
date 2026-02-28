@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
@@ -14,7 +14,7 @@ class AvailabilityGrid(SQLModel, table=True):
     # Format: {"monday": [true, true, false, ...], "tuesday": [...], ...}
     grid: str = Field(sa_column=Column(Text, default="{}"))
 
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())
 
 
 class SchedulingRules(SQLModel, table=True):
@@ -39,4 +39,4 @@ class SchedulingRules(SQLModel, table=True):
     lighter_weekends: bool = True
     weekend_max_hours: float = 4.0
 
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())

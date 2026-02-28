@@ -1,5 +1,5 @@
 import enum
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Enum
 from sqlmodel import Field, SQLModel
@@ -23,4 +23,4 @@ class SharingRule(SQLModel, table=True):
     tag_filter: str | None = None  # JSON list of tag IDs to share
     is_active: bool = True
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())

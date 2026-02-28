@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
@@ -15,4 +15,4 @@ class CalendarBinding(SQLModel, table=True):
     last_synced_hash: str = ""
     last_synced_at: datetime | None = None
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())

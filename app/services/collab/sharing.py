@@ -8,7 +8,7 @@ to other users with configurable visibility levels.
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import datetime
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel
@@ -83,7 +83,7 @@ async def create_sharing_rule(
         visibility=data.visibility,
         tag_filter=json.dumps(data.tag_filter) if data.tag_filter else None,
         is_active=True,
-        created_at=datetime.now(UTC),
+        created_at=datetime.utcnow(),
     )
     session.add(rule)
     await session.commit()

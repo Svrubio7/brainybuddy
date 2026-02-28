@@ -15,7 +15,8 @@ build/
 htmlcov/
 .coverage
 pgdata/
-*.md
+CLAUDE.md
+CHANGELOG.md
 .claude/
 .agents/
 alembic/versions/__pycache__/

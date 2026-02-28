@@ -1,5 +1,4 @@
-from datetime import UTC, datetime
-from typing import Optional
+from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
@@ -16,14 +15,9 @@ class User(SQLModel, table=True):
     # Supabase Auth
     supabase_id: str = Field(unique=True, index=True)
 
-    # Google Calendar OAuth (separate from Supabase Auth)
-    google_access_token: str | None = None
-    google_refresh_token: str | None = None
-    google_token_expiry: Optional[datetime] = None
-
     # Calendar
     study_calendar_id: str | None = None
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())

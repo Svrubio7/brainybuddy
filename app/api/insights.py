@@ -15,8 +15,8 @@ async def get_weekly_insight(
     week_start: date = Query(default=None),
 ):
     if not week_start:
-        from datetime import datetime, UTC
-        today = datetime.now(UTC).date()
+        from datetime import datetime
+        today = datetime.utcnow().date()
         # Monday of current week
         week_start = today - __import__("datetime").timedelta(days=today.weekday())
 

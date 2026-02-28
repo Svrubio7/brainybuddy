@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -37,7 +37,7 @@ async def update_course(
         return None
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(course, key, value)
-    course.updated_at = datetime.now(UTC)
+    course.updated_at = datetime.utcnow()
     await session.commit()
     await session.refresh(course)
     return course

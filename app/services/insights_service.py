@@ -69,7 +69,7 @@ async def compute_risk_scores(
     )
     tasks = result.scalars().all()
 
-    now = datetime.now(UTC)
+    now = datetime.utcnow()
     risks = []
 
     for task in tasks:
@@ -113,7 +113,7 @@ async def compute_load_curve(
     days_ahead: int = 14,
 ) -> list[dict]:
     """Daily planned study hours for the next N days."""
-    now = datetime.now(UTC)
+    now = datetime.utcnow()
     results = []
 
     for i in range(days_ahead):

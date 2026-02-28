@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -80,7 +80,7 @@ async def update_task(
 
     for key, value in update_data.items():
         setattr(task, key, value)
-    task.updated_at = datetime.now(UTC)
+    task.updated_at = datetime.utcnow()
 
     if tag_ids is not None:
         # Remove existing tags
@@ -112,8 +112,8 @@ async def complete_task(session: AsyncSession, user_id: int, task_id: int) -> Ta
     if not task:
         return None
     task.status = TaskStatus.COMPLETED
-    task.completed_at = datetime.now(UTC)
-    task.updated_at = datetime.now(UTC)
+    task.completed_at = datetime.utcnow()
+    task.updated_at = datetime.utcnow()
     await session.commit()
     await session.refresh(task)
     return task
@@ -127,7 +127,7 @@ async def add_time_to_task(
         return None
     current = task.estimated_hours or 0
     task.estimated_hours = current + additional_hours
-    task.updated_at = datetime.now(UTC)
+    task.updated_at = datetime.utcnow()
     await session.commit()
     await session.refresh(task)
     return task

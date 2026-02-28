@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -127,7 +127,7 @@ async def move_block(
     block.start = new_start
     block.end = new_end
     block.is_pinned = True
-    block.updated_at = datetime.now(UTC)
+    block.updated_at = datetime.utcnow()
     await session.commit()
     await session.refresh(block)
     return block

@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
@@ -11,7 +11,7 @@ class Tag(SQLModel, table=True):
     name: str
     color: str = "#6B7280"
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
 
 
 class TaskTag(SQLModel, table=True):

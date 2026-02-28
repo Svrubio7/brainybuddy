@@ -1,11 +1,21 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class TaskCreate(BaseModel):
     title: str
     due_date: datetime
+
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def strip_timezone(cls, v: object) -> object:
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        if isinstance(v, str) and ("+" in v or "Z" in v):
+            dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            return dt.replace(tzinfo=None)
+        return v
     course_id: int | None = None
     description: str = ""
     estimated_hours: float | None = None
@@ -22,6 +32,18 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: str | None = None
     due_date: datetime | None = None
+
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def strip_timezone(cls, v: object) -> object:
+        if v is None:
+            return v
+        if isinstance(v, datetime) and v.tzinfo is not None:
+            return v.replace(tzinfo=None)
+        if isinstance(v, str) and ("+" in v or "Z" in v):
+            dt = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            return dt.replace(tzinfo=None)
+        return v
     course_id: int | None = None
     description: str | None = None
     estimated_hours: float | None = None

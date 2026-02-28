@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Text
 from sqlmodel import Field, SQLModel
@@ -14,4 +14,4 @@ class PlanVersion(SQLModel, table=True):
     snapshot: str = Field(sa_column=Column(Text, default=""))  # JSON snapshot of all blocks
     diff_summary: str = ""  # Human-readable summary
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())

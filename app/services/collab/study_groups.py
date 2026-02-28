@@ -7,7 +7,7 @@ discovery so study partners can find overlapping availability.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel
@@ -28,8 +28,8 @@ class StudyGroup(SQLModel, table=True):
     name: str
     description: str = ""
     owner_id: int = Field(foreign_key="users.id", index=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())
 
 
 class StudyGroupMember(SQLModel, table=True):
@@ -38,7 +38,7 @@ class StudyGroupMember(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     group_id: int = Field(foreign_key="study_groups.id", index=True)
     user_id: int = Field(foreign_key="users.id", index=True)
-    joined_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    joined_at: datetime = Field(default_factory=lambda: datetime.utcnow())
 
 
 # ── Request / response schemas ───────────────────────────────────────

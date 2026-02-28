@@ -1,5 +1,5 @@
 import enum
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Enum
 from sqlmodel import Field, SQLModel
@@ -55,5 +55,5 @@ class Task(SQLModel, table=True):
     max_block_minutes: int = 120
 
     completed_at: datetime | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())

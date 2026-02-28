@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -11,7 +11,7 @@ def _make_task(task_id: int, title: str, hours: float, due_days: int, difficulty
     """Create a mock task for testing."""
     t = Task(
         title=title,
-        due_date=datetime.now(UTC) + timedelta(days=due_days),
+        due_date=datetime.utcnow() + timedelta(days=due_days),
         estimated_hours=hours,
         difficulty=difficulty,
         user_id=1,

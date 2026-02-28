@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, date
+from datetime import datetime, date
 
 from sqlmodel import Field, SQLModel
 
@@ -15,4 +15,4 @@ class Insight(SQLModel, table=True):
     actual_hours: float = 0
     risk_score: float = 0  # 0-1, higher = more at risk
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())

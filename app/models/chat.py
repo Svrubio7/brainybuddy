@@ -1,5 +1,5 @@
 import enum
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Column, Enum, Text
 from sqlmodel import Field, SQLModel
@@ -19,8 +19,8 @@ class ChatSession(SQLModel, table=True):
     title: str = "New Chat"
     is_active: bool = True
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
+    updated_at: datetime = Field(default_factory=lambda: datetime.utcnow())
 
 
 class ChatMessage(SQLModel, table=True):
@@ -34,4 +34,4 @@ class ChatMessage(SQLModel, table=True):
     content: str = Field(sa_column=Column(Text, default=""))
     tool_calls: str = Field(sa_column=Column(Text, default=""))  # JSON
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.utcnow())
